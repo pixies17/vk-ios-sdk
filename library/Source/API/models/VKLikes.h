@@ -28,7 +28,7 @@ Likes type of VK API
 */
 @interface VKLikes : VKApiObject
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-@property(nonatomic, strong) NSNumber *count;
+@property(nonatomic, strong) NSNumber *countLikes;
 @property(nonatomic, strong) NSNumber *user_likes;
 @property(nonatomic, strong) NSNumber *can_like;
 @property(nonatomic, strong) NSNumber *can_publish;

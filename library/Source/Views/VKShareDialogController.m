@@ -124,7 +124,6 @@
 @property(nonatomic, strong) VKPostSettings *postSettings;
 @property(nonatomic, assign) BOOL prepared;
 @property(nonatomic, assign) BOOL isNeedHidePrivacyButton;
-@property(nonatomic) CGFloat contentSizeHeight;
 
 @property(nonatomic, weak) id <VKSdkUIDelegate> oldDelegate;
 @end
@@ -299,16 +298,16 @@ static const CGFloat ipadHeight = 500.f;
                 viewSize = selfSize;
             } else {
                 if (UIInterfaceOrientationIsLandscape(orientation)) {
-                    viewSize = CGSizeMake(roundf(selfSize.width * landscapeWidthCoef), MIN(roundf(selfSize.height * landscapeHeightCoef), self.targetShareDialog.contentSizeHeight + 44));
+                    viewSize = CGSizeMake(roundf(selfSize.width * landscapeWidthCoef), roundf(selfSize.height * landscapeHeightCoef));
                 } else {
-                    viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), MIN(roundf(selfSize.height * portraitHeightCoef), self.targetShareDialog.contentSizeHeight + 44));
+                    viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), roundf(selfSize.height * self.portraitHeightCoef ? self.portraitHeightCoef : portraitHeightCoef));
                 }
             }
         } else {
             if (UIInterfaceOrientationIsLandscape(orientation)) {
-                viewSize = CGSizeMake(roundf(selfSize.width * landscapeWidthCoef), MIN(roundf(selfSize.height * landscapeHeightCoef), self.targetShareDialog.contentSizeHeight + 44));
+                viewSize = CGSizeMake(roundf(selfSize.width * landscapeWidthCoef), roundf(selfSize.height * landscapeHeightCoef));
             } else {
-                viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), MIN(roundf(selfSize.height * portraitHeightCoef), self.targetShareDialog.contentSizeHeight + 44));
+                viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), roundf(selfSize.height * self.portraitHeightCoef ? self.portraitHeightCoef : portraitHeightCoef));
             }
         }
     }
@@ -849,7 +848,6 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
     [view.privacyButton addTarget:self action:@selector(openSettings:) forControlEvents:UIControlEventTouchUpInside];
     
     self.view = view;
-    self.contentSizeHeight = view.contentScrollView.contentSize.height;
 }
 
 - (UICollectionView *)attachmentsScrollView {

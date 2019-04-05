@@ -72,9 +72,9 @@ typedef NS_ENUM(NSInteger, VKShareDialogControllerResult) {
 @property(nonatomic, readonly, copy) NSString *postId;
 
 /// Flag for hiding settings button
-@property(nonatomic, assign) BOOL *isNeedHidePrivacyButton;
+@property(nonatomic, assign) BOOL isNeedHidePrivacyButton;
 
 /// Flag for flexible height of sharing view
-@property(nonatomic, assign) BOOL *flexibleHeight;
+@property(nonatomic) CGFloat portraitHeightCoef;
 
 @end
