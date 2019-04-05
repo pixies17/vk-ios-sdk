@@ -186,10 +186,10 @@ static const CGFloat ipadHeight = 500.f;
 
 #pragma clang diagnostic pop
 
-- (instancetype)init {
+- (instancetype)initWithNeedHidePrivacyButton:(BOOL)hidePrivacyButton {
     if (self = [super init]) {
         _internalNavigation = [[VKHelperNavigationController alloc] initWithRootViewController:_targetShareDialog = [VKShareDialogControllerInternal new]];
-        _targetShareDialog.isNeedHidePrivacyButton = _isNeedHidePrivacyButton;
+        _targetShareDialog.isNeedHidePrivacyButton = hidePrivacyButton;
         _targetShareDialog.parent = self;
         
         [self addChildViewController:self.internalNavigation];
@@ -300,14 +300,14 @@ static const CGFloat ipadHeight = 500.f;
                 if (UIInterfaceOrientationIsLandscape(orientation)) {
                     viewSize = CGSizeMake(roundf(selfSize.width * landscapeWidthCoef), roundf(selfSize.height * landscapeHeightCoef));
                 } else {
-                    viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), roundf(selfSize.height * self.portraitHeightCoef ? self.portraitHeightCoef : portraitHeightCoef));
+                    viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), roundf(selfSize.height * (self.portraitHeightCoef ? self.portraitHeightCoef : portraitHeightCoef)));
                 }
             }
         } else {
             if (UIInterfaceOrientationIsLandscape(orientation)) {
                 viewSize = CGSizeMake(roundf(selfSize.width * landscapeWidthCoef), roundf(selfSize.height * landscapeHeightCoef));
             } else {
-                viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), roundf(selfSize.height * self.portraitHeightCoef ? self.portraitHeightCoef : portraitHeightCoef));
+                viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), roundf(selfSize.height * (self.portraitHeightCoef ? self.portraitHeightCoef : portraitHeightCoef)));
             }
         }
     }

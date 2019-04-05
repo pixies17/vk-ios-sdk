@@ -71,9 +71,6 @@ typedef NS_ENUM(NSInteger, VKShareDialogControllerResult) {
 /// Contains post id created via share dialog. Example string: 123_4567890
 @property(nonatomic, readonly, copy) NSString *postId;
 
-/// Flag for hiding settings button
-@property(nonatomic, assign) BOOL isNeedHidePrivacyButton;
-
 /// Flag for flexible height of sharing view
 @property(nonatomic) CGFloat portraitHeightCoef;
 
