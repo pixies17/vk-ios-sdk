@@ -675,7 +675,7 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
     }
     
     _contentScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-    _contentScrollView.contentInset = UIEdgeInsetsMake(0, 0, 44, 0);
+    _contentScrollView.contentInset = UIEdgeInsetsMake(0, 0, hidePrivacyButton ? 0 : 44, 0);
     _contentScrollView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     _contentScrollView.scrollIndicatorInsets = _contentScrollView.contentInset;
     [self addSubview:_contentScrollView];
