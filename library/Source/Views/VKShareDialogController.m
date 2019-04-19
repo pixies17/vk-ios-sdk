@@ -1200,6 +1200,7 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
     cell.attachImageView.image = attach.preview;
     
     if (self.attachmentCornerRadius) {
+        cell.attachImageView.layer.masksToBounds = YES;
         cell.attachImageView.layer.cornerRadius = self.attachmentCornerRadius.floatValue;
     }
     
