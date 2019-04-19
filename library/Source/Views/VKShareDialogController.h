@@ -74,6 +74,6 @@ typedef NS_ENUM(NSInteger, VKShareDialogControllerResult) {
 /// Flag for flexible height of sharing view
 @property(nonatomic) CGFloat portraitHeightCoef;
 
-- (instancetype)initWithNeedHidePrivacyButton:(BOOL)hidePrivacyButton;
+- (instancetype)initWithNeedHidePrivacyButton:(BOOL)hidePrivacyButton attachmentCornerRadius:(NSNumber *)attachCornerRadius;
 
 @end

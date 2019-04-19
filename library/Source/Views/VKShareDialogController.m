@@ -124,6 +124,7 @@
 @property(nonatomic, strong) VKPostSettings *postSettings;
 @property(nonatomic, assign) BOOL prepared;
 @property(nonatomic, assign) BOOL isNeedHidePrivacyButton;
+@property(nonatomic, strong) NSNumber *attachmentCornerRadius;
 
 @property(nonatomic, weak) id <VKSdkUIDelegate> oldDelegate;
 @end
@@ -186,10 +187,11 @@ static const CGFloat ipadHeight = 500.f;
 
 #pragma clang diagnostic pop
 
-- (instancetype)initWithNeedHidePrivacyButton:(BOOL)hidePrivacyButton {
+- (instancetype)initWithNeedHidePrivacyButton:(BOOL)hidePrivacyButton attachmentCornerRadius:(NSNumber *)attachCornerRadius {
     if (self = [super init]) {
         _internalNavigation = [[VKHelperNavigationController alloc] initWithRootViewController:_targetShareDialog = [VKShareDialogControllerInternal new]];
         _targetShareDialog.isNeedHidePrivacyButton = hidePrivacyButton;
+        _targetShareDialog.attachmentCornerRadius = attachCornerRadius;
         _targetShareDialog.parent = self;
         
         [self addChildViewController:self.internalNavigation];
@@ -675,7 +677,7 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
     }
     
     _contentScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-    _contentScrollView.contentInset = UIEdgeInsetsMake(0, 0, hidePrivacyButton ? 0 : 44, 0);
+    _contentScrollView.contentInset = UIEdgeInsetsMake(0, 0, hidePrivacyButton ? 12 : 44, 0);
     _contentScrollView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     _contentScrollView.scrollIndicatorInsets = _contentScrollView.contentInset;
     [self addSubview:_contentScrollView];
@@ -1196,6 +1198,11 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
     VKPhotoAttachmentCell *cell = (VKPhotoAttachmentCell *) [collectionView dequeueReusableCellWithReuseIdentifier:@"VKPhotoAttachmentCell" forIndexPath:indexPath];
 
     cell.attachImageView.image = attach.preview;
+    
+    if (self.attachmentCornerRadius) {
+        cell.attachImageView.layer.cornerRadius = self.attachmentCornerRadius.floatValue;
+    }
+    
     VKRequest *request = attach.uploadingRequest;
 
     __weak VKPhotoAttachmentCell *weakCell = cell;
