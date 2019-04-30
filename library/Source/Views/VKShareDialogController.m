@@ -1022,7 +1022,6 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
     }                 errorBlock:^(NSError *error) {
         [self dismissActivityIndicator];
         textView.editable = YES;
-        [textView becomeFirstResponder];
         
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0
         [[[UIAlertView alloc] initWithTitle:nil message:VKLocalizedString(@"ErrorWhilePosting") delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
