@@ -76,4 +76,6 @@ typedef NS_ENUM(NSInteger, VKShareDialogControllerResult) {
 
 - (instancetype)initWithNeedHidePrivacyButton:(BOOL)hidePrivacyButton attachmentCornerRadius:(NSNumber *)attachCornerRadius;
 
+- (void)dismissActivityIndicator;
+
 @end

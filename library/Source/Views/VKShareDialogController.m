@@ -127,6 +127,9 @@
 @property(nonatomic, strong) NSNumber *attachmentCornerRadius;
 
 @property(nonatomic, weak) id <VKSdkUIDelegate> oldDelegate;
+
+-(void)dismissActivityIndicator;
+
 @end
 
 @interface VKHelperNavigationController : UINavigationController
@@ -347,6 +350,10 @@ static const CGFloat ipadHeight = 500.f;
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAll;
+}
+
+- (void)dismissActivityIndicator {
+    [self.targetShareDialog dismissActivityIndicator];
 }
 
 #pragma clang diagnostic push
@@ -852,6 +859,11 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
     self.view = view;
 }
 
+-(void)dismissActivityIndicator {
+    self.navigationItem.rightBarButtonItem = nil;
+    self.navigationItem.rightBarButtonItems = [self rightBarButtonItems];
+}
+
 - (UICollectionView *)attachmentsScrollView {
     VKShareDialogView *view = (VKShareDialogView *) self.view;
     return view.attachmentsCollection;
@@ -1008,8 +1020,7 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
             [self.navigationController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
     }                 errorBlock:^(NSError *error) {
-        self.navigationItem.rightBarButtonItem = nil;
-        self.navigationItem.rightBarButtonItems = [self rightBarButtonItems];
+        [self dismissActivityIndicator];
         textView.editable = YES;
         [textView becomeFirstResponder];
         
