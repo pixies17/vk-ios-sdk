@@ -500,7 +500,7 @@ static NSString *VK_ACCESS_TOKEN_DEFAULTS_KEY = @"VK_ACCESS_TOKEN_DEFAULTS_KEY_D
 - (void)handleDidBecomeActive {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         if (self.authState == VKAuthorizationExternal) {
-            [VKSdk authorize:[vkSdkInstance.permissions allObjects] withOptions:vkSdkInstance.lastKnownOptions];
+            //[VKSdk authorize:[vkSdkInstance.permissions allObjects] withOptions:vkSdkInstance.lastKnownOptions];
         }
     });
 }
