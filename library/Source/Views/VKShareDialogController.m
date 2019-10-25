@@ -642,9 +642,23 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
     CGFloat lastTextViewHeight;
 }
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    [super traitCollectionDidChange:previousTraitCollection];
+    [self configureBackgroundColor];
+}
+
+- (void) configureBackgroundColor {
+    self.backgroundColor = [VKUtil colorWithRGB:0xfafbfc];
+    if (@available(iOS 13.0, *)) {
+        if (self.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
+            self.backgroundColor = [VKUtil colorWithRGB:0x1d1e20];
+        }
+    }
+}
+
 - (instancetype)initWithFrame:(CGRect)frame isNeedHidePrivacyButton:(BOOL)hidePrivacyButton {
     self = [super initWithFrame:frame];
-    self.backgroundColor = [VKUtil colorWithRGB:0xfafbfc];
+    [self configureBackgroundColor];
     {
         //View for authorizing, adds only when user is not authorized
         _notAuthorizedView = [[UIView alloc] initWithFrame:self.bounds];
