@@ -46,23 +46,23 @@
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
-
+    
     self.attachImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(frame), CGRectGetHeight(frame))];
     self.attachImageView.contentMode = UIViewContentModeScaleAspectFill;
     [self.contentView addSubview:self.attachImageView];
-
+    
     self.progressView = [[UIProgressView alloc] initWithFrame:CGRectMake(5, CGRectGetHeight(frame) - 20, CGRectGetWidth(frame) - 10, 10)];
     self.progressView.hidden = YES;
     [self.contentView addSubview:self.progressView];
-
+    
     self.activity = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     self.activity.frame = CGRectMake(roundf((frame.size.width - self.activity.frame.size.width) / 2),
-            roundf((frame.size.height - self.activity.frame.size.height) / 2),
-            self.activity.frame.size.width,
-            self.activity.frame.size.height);
+                                     roundf((frame.size.height - self.activity.frame.size.height) / 2),
+                                     self.activity.frame.size.width,
+                                     self.activity.frame.size.height);
     self.activity.hidesWhenStopped = YES;
     [self addSubview:self.activity];
-
+    
     return self;
 }
 
@@ -123,8 +123,13 @@
 @property(nonatomic, strong) NSMutableArray *attachmentsArray;
 @property(nonatomic, strong) VKPostSettings *postSettings;
 @property(nonatomic, assign) BOOL prepared;
+@property(nonatomic, assign) BOOL isNeedHidePrivacyButton;
+@property(nonatomic, strong) NSNumber *attachmentCornerRadius;
 
 @property(nonatomic, weak) id <VKSdkUIDelegate> oldDelegate;
+
+-(void)dismissActivityIndicator;
+
 @end
 
 @interface VKHelperNavigationController : UINavigationController
@@ -185,14 +190,15 @@ static const CGFloat ipadHeight = 500.f;
 
 #pragma clang diagnostic pop
 
-- (instancetype)init {
+- (instancetype)initWithNeedHidePrivacyButton:(BOOL)hidePrivacyButton attachmentCornerRadius:(NSNumber *)attachCornerRadius {
     if (self = [super init]) {
         _internalNavigation = [[VKHelperNavigationController alloc] initWithRootViewController:_targetShareDialog = [VKShareDialogControllerInternal new]];
-
+        _targetShareDialog.isNeedHidePrivacyButton = hidePrivacyButton;
+        _targetShareDialog.attachmentCornerRadius = attachCornerRadius;
         _targetShareDialog.parent = self;
-
+        
         [self addChildViewController:self.internalNavigation];
-
+        
         _requestedScope = ([VKSdk accessToken] && [VKSdk accessToken].permissions.count > 0) ? [VKSdk accessToken].permissions : @[VK_PER_WALL, VK_PER_PHOTOS];
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "UnavailableInDeploymentTarget"
@@ -295,25 +301,25 @@ static const CGFloat ipadHeight = 500.f;
                 if (UIInterfaceOrientationIsLandscape(orientation)) {
                     viewSize = CGSizeMake(roundf(selfSize.width * landscapeWidthCoef), roundf(selfSize.height * landscapeHeightCoef));
                 } else {
-                    viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), roundf(selfSize.height * portraitHeightCoef));
+                    viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), roundf(selfSize.height * (self.portraitHeightCoef ? self.portraitHeightCoef : portraitHeightCoef)));
                 }
             }
         } else {
             if (UIInterfaceOrientationIsLandscape(orientation)) {
                 viewSize = CGSizeMake(roundf(selfSize.width * landscapeWidthCoef), roundf(selfSize.height * landscapeHeightCoef));
             } else {
-                viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), roundf(selfSize.height * portraitHeightCoef));
+                viewSize = CGSizeMake(roundf(selfSize.width * portraitWidthCoef), roundf(selfSize.height * (self.portraitHeightCoef ? self.portraitHeightCoef : portraitHeightCoef)));
             }
         }
     }
     if ([VKUtil isOperatingSystemAtLeastIOS8] || onAppear || UIInterfaceOrientationIsPortrait(orientation)) {
         self.internalNavigation.view.frame = CGRectMake(roundf((CGRectGetWidth(self.view.frame) - viewSize.width) / 2),
-                roundf((CGRectGetHeight(self.view.frame) - viewSize.height) / 2),
-                viewSize.width, viewSize.height);
+                                                        roundf((CGRectGetHeight(self.view.frame) - viewSize.height) / 2),
+                                                        viewSize.width, viewSize.height);
     } else if (UIInterfaceOrientationIsLandscape(orientation)) {
         self.internalNavigation.view.frame = CGRectMake(roundf((CGRectGetHeight(self.view.frame) - viewSize.width) / 2),
-                roundf((CGRectGetWidth(self.view.frame) - viewSize.height) / 2),
-                viewSize.width, viewSize.height);
+                                                        roundf((CGRectGetWidth(self.view.frame) - viewSize.height) / 2),
+                                                        viewSize.width, viewSize.height);
     }
     if (![VKUtil isOperatingSystemAtLeastIOS7]) {
         if (self.presentingViewController.modalPresentationStyle != UIModalPresentationCurrentContext) {
@@ -336,6 +342,10 @@ static const CGFloat ipadHeight = 500.f;
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAll;
+}
+
+- (void)dismissActivityIndicator {
+    [self.targetShareDialog dismissActivityIndicator];
 }
 
 #pragma clang diagnostic push
@@ -624,9 +634,23 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
     CGFloat lastTextViewHeight;
 }
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    [super traitCollectionDidChange:previousTraitCollection];
+    [self configureBackgroundColor];
+}
+
+- (void) configureBackgroundColor {
     self.backgroundColor = [VKUtil colorWithRGB:0xfafbfc];
+    if (@available(iOS 13.0, *)) {
+        if (self.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
+            self.backgroundColor = [VKUtil colorWithRGB:0x1d1e20];
+        }
+    }
+}
+
+- (instancetype)initWithFrame:(CGRect)frame isNeedHidePrivacyButton:(BOOL)hidePrivacyButton {
+    self = [super initWithFrame:frame];
+    [self configureBackgroundColor];
     {
         //View for authorizing, adds only when user is not authorized
         _notAuthorizedView = [[UIView alloc] initWithFrame:self.bounds];
@@ -664,24 +688,26 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
         _activityIndicator.hidesWhenStopped = YES;
         [self addSubview:_activityIndicator];
     }
-
+    
     _contentScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-    _contentScrollView.contentInset = UIEdgeInsetsMake(0, 0, 44, 0);
+    _contentScrollView.contentInset = UIEdgeInsetsMake(0, 0, hidePrivacyButton ? 12 : 44, 0);
     _contentScrollView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     _contentScrollView.scrollIndicatorInsets = _contentScrollView.contentInset;
     [self addSubview:_contentScrollView];
-
-    _privacyButton = [[VKPrivacyButton alloc] initWithFrame:CGRectMake(0, frame.size.height - 44, frame.size.width, 44)];
-    _privacyButton.titleLabel.font = [UIFont systemFontOfSize:16];
-    _privacyButton.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
-    _privacyButton.contentEdgeInsets = UIEdgeInsetsMake(0, 14, 0, 14);
-    _privacyButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
-    [_privacyButton setTitle:VKLocalizedString(@"PostSettings") forState:UIControlStateNormal];
-    [_privacyButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [self addSubview:_privacyButton];
-
+    
+    if (hidePrivacyButton == false) {
+        _privacyButton = [[VKPrivacyButton alloc] initWithFrame:CGRectMake(0, frame.size.height - 44, frame.size.width, 44)];
+        _privacyButton.titleLabel.font = [UIFont systemFontOfSize:16];
+        _privacyButton.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
+        _privacyButton.contentEdgeInsets = UIEdgeInsetsMake(0, 14, 0, 14);
+        _privacyButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+        [_privacyButton setTitle:VKLocalizedString(@"PostSettings") forState:UIControlStateNormal];
+        [_privacyButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [self addSubview:_privacyButton];
+    }
+    
     _textView = [[VKPlaceholderTextView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, 36)];
-
+    
     _textView.backgroundColor = [UIColor clearColor];
     _textView.textColor = [UIColor blackColor];
     _textView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -746,20 +772,20 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
 #endif
         }
 #pragma clang diagnostic pop
-
+        
         [self.notAuthorizedButton sizeToFit];
-
+        
         self.notAuthorizedLabel.frame = CGRectMake(
-                10,
-                roundf((CGRectGetHeight(self.notAuthorizedView.frame) - notAuthorizedTextSize.height - CGRectGetHeight(self.notAuthorizedButton.frame)) / 2),
-                notAuthorizedTextBoundingSize.width,
-                roundf(notAuthorizedTextSize.height));
-
+                                                   10,
+                                                   roundf((CGRectGetHeight(self.notAuthorizedView.frame) - notAuthorizedTextSize.height - CGRectGetHeight(self.notAuthorizedButton.frame)) / 2),
+                                                   notAuthorizedTextBoundingSize.width,
+                                                   roundf(notAuthorizedTextSize.height));
+        
         self.notAuthorizedButton.frame = CGRectMake(
-                roundf(self.notAuthorizedLabel.center.x) - roundf(CGRectGetWidth(self.notAuthorizedButton.frame) / 2),
-                CGRectGetMaxY(self.notAuthorizedLabel.frame) + roundf(CGRectGetHeight(self.notAuthorizedButton.frame) / 2),
-                CGRectGetWidth(self.notAuthorizedButton.frame),
-                CGRectGetHeight(self.notAuthorizedButton.frame));
+                                                    roundf(self.notAuthorizedLabel.center.x) - roundf(CGRectGetWidth(self.notAuthorizedButton.frame) / 2),
+                                                    CGRectGetMaxY(self.notAuthorizedLabel.frame) + roundf(CGRectGetHeight(self.notAuthorizedButton.frame) / 2),
+                                                    CGRectGetWidth(self.notAuthorizedButton.frame),
+                                                    CGRectGetHeight(self.notAuthorizedButton.frame));
     }
     //Workaround for iOS 6 - ignoring contentInset.right
     self.textView.frame = CGRectMake(0, 0, self.frame.size.width - (![VKUtil isOperatingSystemAtLeastIOS7] ? 20 : 0), [self.textView measureHeightOfUITextView]);
@@ -831,13 +857,18 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
 #pragma clang diagnostic pop
 
 - (void)loadView {
-    VKShareDialogView *view = [[VKShareDialogView alloc] initWithFrame:CGRectMake(0, 0, ipadWidth, ipadHeight)];
+    VKShareDialogView *view = [[VKShareDialogView alloc] initWithFrame:CGRectMake(0, 0, ipadWidth, ipadHeight) isNeedHidePrivacyButton:_isNeedHidePrivacyButton];
     view.attachmentsCollection.delegate = self;
     view.attachmentsCollection.dataSource = self;
     [view.notAuthorizedButton addTarget:self action:@selector(authorize:) forControlEvents:UIControlEventTouchUpInside];
     [view.privacyButton addTarget:self action:@selector(openSettings:) forControlEvents:UIControlEventTouchUpInside];
-
+    
     self.view = view;
+}
+
+-(void)dismissActivityIndicator {
+    self.navigationItem.rightBarButtonItem = nil;
+    self.navigationItem.rightBarButtonItems = [self rightBarButtonItems];
 }
 
 - (UICollectionView *)attachmentsScrollView {
@@ -987,10 +1018,8 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
             [self.navigationController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
     }                 errorBlock:^(NSError *error) {
-        self.navigationItem.rightBarButtonItem = nil;
-        self.navigationItem.rightBarButtonItems = [self rightBarButtonItems];
+        [self dismissActivityIndicator];
         textView.editable = YES;
-        [textView becomeFirstResponder];
         
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_8_0
         [[[UIAlertView alloc] initWithTitle:nil message:VKLocalizedString(@"ErrorWhilePosting") delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
@@ -1179,6 +1208,12 @@ static const CGFloat kAttachmentsViewSize = 100.0f;
     VKPhotoAttachmentCell *cell = (VKPhotoAttachmentCell *) [collectionView dequeueReusableCellWithReuseIdentifier:@"VKPhotoAttachmentCell" forIndexPath:indexPath];
 
     cell.attachImageView.image = attach.preview;
+    
+    if (self.attachmentCornerRadius) {
+        cell.attachImageView.layer.masksToBounds = YES;
+        cell.attachImageView.layer.cornerRadius = self.attachmentCornerRadius.floatValue;
+    }
+    
     VKRequest *request = attach.uploadingRequest;
 
     __weak VKPhotoAttachmentCell *weakCell = cell;
