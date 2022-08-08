@@ -355,7 +355,7 @@ static const CGFloat ipadHeight = 500.f;
     [super viewDidLoad];
     if ([VKUtil isOperatingSystemAtLeastIOS7]) {
         self.internalNavigation.navigationBar.barTintColor = VK_COLOR;
-        self.internalNavigation.navigationBar.tintColor = [UIColor whiteColor];
+        self.internalNavigation.navigationBar.tintColor = VK_COLOR;
         self.internalNavigation.automaticallyAdjustsScrollViewInsets = NO;
     }
 
